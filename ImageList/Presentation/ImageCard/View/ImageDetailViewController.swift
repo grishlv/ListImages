@@ -10,25 +10,23 @@ import UIKit
 
 final class ImageDetailViewController: UIViewController {
     
-    var image: UIImage? {
-        didSet {
-            imageView.image = image
-        }
-    }
-
     private var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         setupImageView()
     }
-
+    
+    func setImage(image: UIImage) {
+        imageView.image = image
+    }
+    
     //MARK: - setup image view
     private func setupImageView() {
         view.addSubview(imageView)

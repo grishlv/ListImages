@@ -53,6 +53,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		78BC73FE2AA61819009E075C /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				78BDFB452A9FA3BF002F732C /* MainScreen */,
+				78BDFB572AA09D9C002F732C /* ImageCard */,
+				78BDFB5D2AA214F2002F732C /* Favourite */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		78BC73FF2AA61877009E075C /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				78BDFB502AA08DE1002F732C /* NetworkService.swift */,
+				78BDFB462A9FA3C7002F732C /* Model */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
 		78BDFB252A9FA1C1002F732C = {
 			isa = PBXGroup;
 			children = (
@@ -74,9 +93,8 @@
 			children = (
 				78BDFB4F2AA08A16002F732C /* Assets */,
 				78BDFB4B2A9FA846002F732C /* Scenes */,
-				78BDFB452A9FA3BF002F732C /* MainScreen */,
-				78BDFB572AA09D9C002F732C /* ImageCard */,
-				78BDFB5D2AA214F2002F732C /* Favourite */,
+				78BDFB4E2AA089F9002F732C /* Services */,
+				78BC73FE2AA61819009E075C /* Presentation */,
 				78BDFB3F2A9FA1C6002F732C /* Info.plist */,
 			);
 			path = ImageList;
@@ -85,11 +103,9 @@
 		78BDFB452A9FA3BF002F732C /* MainScreen */ = {
 			isa = PBXGroup;
 			children = (
-				78BDFB462A9FA3C7002F732C /* Model */,
 				78BDFB472A9FA3D0002F732C /* View */,
 				78BDFB522AA095DB002F732C /* ViewCell */,
 				78BDFB482A9FA3D5002F732C /* Presenter */,
-				78BDFB4E2AA089F9002F732C /* API */,
 			);
 			path = MainScreen;
 			sourceTree = "<group>";
@@ -127,12 +143,12 @@
 			path = Scenes;
 			sourceTree = "<group>";
 		};
-		78BDFB4E2AA089F9002F732C /* API */ = {
+		78BDFB4E2AA089F9002F732C /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				78BDFB502AA08DE1002F732C /* NetworkService.swift */,
+				78BC73FF2AA61877009E075C /* NetworkService */,
 			);
-			path = API;
+			path = Services;
 			sourceTree = "<group>";
 		};
 		78BDFB4F2AA08A16002F732C /* Assets */ = {

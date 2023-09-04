@@ -6,13 +6,18 @@
 //
 
 import Foundation
+import Kingfisher
 
 final class MainPresenter {
     
     var images: [Image] = []
     var favourites: [Favourite] = []
-    private var networkService = NetworkService()
-
+    private let networkService: NetworkServiceProtocol
+    
+    init(networkService: NetworkServiceProtocol) {
+        self.networkService = networkService
+    }
+    
     func fetchImages(completion: @escaping() -> Void) {
         networkService.fetchImages { [weak self] images, error in
             if let images = images {
@@ -20,6 +25,13 @@ final class MainPresenter {
             }
             completion()
         }
+    }
+    
+    //MARK: - optimized loading
+    func prefetchImagesForVisibleCells(indexPaths: [IndexPath]) {
+        let urls = indexPaths.compactMap { images[$0.item].url }
+        let prefetcher = ImagePrefetcher(urls: urls)
+        prefetcher.start()
     }
     
     func filterImages(by filter: String) {

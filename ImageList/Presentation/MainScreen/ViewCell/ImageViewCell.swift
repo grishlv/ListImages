@@ -7,27 +7,46 @@
 
 import UIKit
 
+protocol ImageViewCellDelegate: AnyObject {
+    func didFavoriteImage(at indexPath: IndexPath)
+}
+
 final class ImageViewCell: UICollectionViewCell {
     
     var delegate: ImageViewCellDelegate?
-    var imageView: UIImageView!
+    
+    let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     var indexPath: IndexPath?
-
+    
     let heartButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "heart"), for: .normal)
         button.setImage(UIImage(systemName: "heart.fill"), for: .selected)
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupView() {
+        
         addSubview(imageView)
+        addSubview(heartButton)
         
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: topAnchor),
@@ -36,28 +55,18 @@ final class ImageViewCell: UICollectionViewCell {
             imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
         
-        heartButton.translatesAutoresizingMaskIntoConstraints = false
-        heartButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
-        addSubview(heartButton)
-
         NSLayoutConstraint.activate([
             heartButton.topAnchor.constraint(equalTo: topAnchor, constant: 0),
             heartButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             heartButton.widthAnchor.constraint(equalToConstant: 50),
             heartButton.heightAnchor.constraint(equalToConstant: 50)
         ])
+        
+        heartButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
     }
     
     @objc func favouriteButtonTapped() {
         guard let indexPath = indexPath else { return }
         delegate?.didFavoriteImage(at: indexPath)
     }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-protocol ImageViewCellDelegate: AnyObject {
-    func didFavoriteImage(at indexPath: IndexPath)
 }

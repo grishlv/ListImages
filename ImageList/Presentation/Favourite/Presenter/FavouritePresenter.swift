@@ -6,7 +6,14 @@
 //
 
 import Foundation
-import UIKit
+
+protocol FavouriteView: AnyObject {
+    func reloadData()
+}
+
+protocol FavouriteControllerDelegate: AnyObject {
+    func didUpdateFavorites(updatedFavorites: [Favourite])
+}
 
 final class FavouritePresenter {
     
@@ -27,12 +34,4 @@ final class FavouritePresenter {
             favourites.remove(at: index)
         }
     }
-}
-
-protocol FavouriteView: AnyObject {
-    func reloadData()
-}
-
-protocol FavouriteControllerDelegate: AnyObject {
-    func didUpdateFavorites(updatedFavorites: [Favourite])
 }

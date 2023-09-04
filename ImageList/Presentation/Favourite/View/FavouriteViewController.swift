@@ -5,16 +5,15 @@
 //  Created by Grigoriy Shilyaev on 01.09.23.
 //
 
-import Foundation
 import UIKit
 import Kingfisher
 
 final class FavouriteViewController: UIViewController {
-
+    
     var images: [Image] = []
     var presenter: FavouritePresenter!
     weak var delegate: FavouriteControllerDelegate?
-
+    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let width = UIScreen.main.bounds.width / 2 - (layout.minimumInteritemSpacing * 1 / 2)
@@ -30,12 +29,12 @@ final class FavouriteViewController: UIViewController {
         view.backgroundColor = .black
         setupCollectionView()
         presenter.loadFavourites()
-        collectionView.delegate = self
-        collectionView.dataSource = self
     }
     
     private func setupCollectionView() {
         view.addSubview(collectionView)
+        collectionView.delegate = self
+        collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
@@ -93,7 +92,7 @@ extension FavouriteViewController: ImageViewCellDelegate {
         if indexPath.row < presenter.favourites.count {
             let removedFavourite = presenter.favourites[indexPath.row]
             presenter.removeFavouriteById(removedFavourite.image.id)
-            collectionView.reloadData()            
+            collectionView.reloadData()
             delegate?.didUpdateFavorites(updatedFavorites: presenter.favourites)
         }
     }

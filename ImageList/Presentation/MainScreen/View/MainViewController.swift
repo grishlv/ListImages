@@ -10,8 +10,8 @@ import Kingfisher
 
 final class MainViewController: UIViewController {
     
-    private var presenter: MainPresenter
-    private var pickerComponents = ["id", "title"]
+    private let presenter: MainPresenter
+    private let pickerComponents = ["id", "title"]
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -32,25 +32,32 @@ final class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .black
-        navigationItem.title = "Image list"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "slider.horizontal.3"), style: .done, target: self, action: #selector(filterButtonTapped))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .done, target: self, action: #selector(favouriteButtonTapped))
-        
+             
+        setupView()
         setupCollectionView()
         presenter.fetchImages { [weak self] in
             DispatchQueue.main.async {
                 self?.collectionView.reloadData()
-                self?.prefetchImagesForVisibleCells()
+                self?.prefetchImages()
             }
         }
-        collectionView.delegate = self
-        collectionView.dataSource = self
+    }
+    
+    private func prefetchImages() {
+        presenter.prefetchImagesForVisibleCells(indexPaths: collectionView.indexPathsForVisibleItems)
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .black
+        navigationItem.title = "Image list"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "slider.horizontal.3"), style: .done, target: self, action: #selector(filterButtonTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .done, target: self, action: #selector(favouriteButtonTapped))
     }
     
     //MARK: - setup collection view
     private func setupCollectionView() {
+        collectionView.delegate = self
+        collectionView.dataSource = self
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
@@ -78,14 +85,6 @@ final class MainViewController: UIViewController {
         let favouriteVC = FavouriteViewController(presenter: favouritePresenter)
         favouriteVC.delegate = self
         navigationController?.pushViewController(favouriteVC, animated: true)
-    }
-
-    //MARK: - optimized loading
-    private func prefetchImagesForVisibleCells() {
-        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        let urls = visibleIndexPaths.compactMap { presenter.images[$0.item].url }
-        let prefetcher = ImagePrefetcher(urls: urls)
-        prefetcher.start()
     }
     
     init(presenter: MainPresenter) {
@@ -136,7 +135,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             case .success(let value):
                 DispatchQueue.main.async {
                     let detailViewController = ImageDetailViewController()
-                    detailViewController.image = value.image
+                    detailViewController.setImage(image: value.image)
                     self.navigationController?.pushViewController(detailViewController, animated: true)
                 }
             case .failure(let error):
@@ -146,7 +145,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        prefetchImagesForVisibleCells()
+        prefetchImages()
     }
 }
 
