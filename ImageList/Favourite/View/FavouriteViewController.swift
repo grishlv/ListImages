@@ -98,9 +98,3 @@ extension FavouriteViewController: ImageViewCellDelegate {
         }
     }
 }
-
-protocol FavouriteControllerDelegate: AnyObject {
-    func didUpdateFavorites(updatedFavorites: [Favourite])
-}
-
-

@@ -33,3 +33,6 @@ protocol FavouriteView: AnyObject {
     func reloadData()
 }
 
+protocol FavouriteControllerDelegate: AnyObject {
+    func didUpdateFavorites(updatedFavorites: [Favourite])
+}
