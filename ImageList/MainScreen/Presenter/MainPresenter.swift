@@ -7,13 +7,13 @@
 
 import Foundation
 
-final class MainViewModel {
+final class MainPresenter {
     
     var images: [Image] = []
-    var favourite: [Image] = []
-    var networkService = NetworkService()
-    
-    public func fetchImages(completion: @escaping() -> Void) {
+    var favourites: [Favourite] = []
+    private var networkService = NetworkService()
+
+    func fetchImages(completion: @escaping() -> Void) {
         networkService.fetchImages { [weak self] images, error in
             if let images = images {
                 self?.images = images
@@ -22,7 +22,7 @@ final class MainViewModel {
         }
     }
     
-    public func filterImages(by filter: String) {
+    func filterImages(by filter: String) {
         switch filter {
         case "id":
             images.sort(by: { $0.id < $1.id })
@@ -32,5 +32,14 @@ final class MainViewModel {
             break
         }
     }
+    
+    func toggleFavorite(forImageAt index: Int) {
+        let image = images[index]
+        if let existingIndex = favourites.firstIndex(where: { $0.image.id == image.id }) {
+            favourites.remove(at: existingIndex)
+            
+        } else {
+            favourites.append(Favourite(image: image, isFavourite: true))
+        }
+    }
 }
-

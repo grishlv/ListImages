@@ -7,16 +7,12 @@
 
 import UIKit
 
-protocol ImageViewCellDelegate: AnyObject {
-    func didFavoriteImage(at indexPath: IndexPath)
-}
-
 final class ImageViewCell: UICollectionViewCell {
     
-    weak var delegate: ImageViewCellDelegate?
-    var indexPath: IndexPath?
+    var delegate: ImageViewCellDelegate?
     var imageView: UIImageView!
-    
+    var indexPath: IndexPath?
+
     let heartButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "heart"), for: .normal)
@@ -41,22 +37,20 @@ final class ImageViewCell: UICollectionViewCell {
         ])
         
         heartButton.translatesAutoresizingMaskIntoConstraints = false
-        heartButton.addTarget(self, action: #selector(handleFavoriteTap), for: .touchUpInside)
+        heartButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
         addSubview(heartButton)
 
         NSLayoutConstraint.activate([
-            heartButton.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            heartButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            heartButton.widthAnchor.constraint(equalToConstant: 24),
-            heartButton.heightAnchor.constraint(equalToConstant: 24)
+            heartButton.topAnchor.constraint(equalTo: topAnchor, constant: 0),
+            heartButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
+            heartButton.widthAnchor.constraint(equalToConstant: 50),
+            heartButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
-    @objc func handleFavoriteTap() {
-        heartButton.isSelected = !heartButton.isSelected
-        if let indexPath = indexPath {
-            delegate?.didFavoriteImage(at: indexPath)
-        }
+    @objc func favouriteButtonTapped() {
+        guard let indexPath = indexPath else { return }
+        delegate?.didFavoriteImage(at: indexPath)
     }
 
     required init?(coder: NSCoder) {
@@ -64,3 +58,6 @@ final class ImageViewCell: UICollectionViewCell {
     }
 }
 
+protocol ImageViewCellDelegate: AnyObject {
+    func didFavoriteImage(at indexPath: IndexPath)
+}

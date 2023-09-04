@@ -9,12 +9,10 @@ import Foundation
 
 final class NetworkService {
     
-    let url = "https://jsonplaceholder.typicode.com/photos"
+    private let url = "https://jsonplaceholder.typicode.com/photos"
     
-    public func fetchImages(completion: @escaping ([Image]?, Error?) -> Void) {
-        
+    func fetchImages(completion: @escaping ([Image]?, Error?) -> Void) {
         guard let url = URL(string: url) else { return }
-        
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion(nil, error)

@@ -8,9 +8,9 @@
 import UIKit
 import Kingfisher
 
-class MainViewController: UIViewController {
+final class MainViewController: UIViewController {
     
-    private var viewModel: MainViewModel
+    private var presenter: MainPresenter
     private var pickerComponents = ["id", "title"]
     
     private lazy var collectionView: UICollectionView = {
@@ -39,7 +39,7 @@ class MainViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .done, target: self, action: #selector(favouriteButtonTapped))
         
         setupCollectionView()
-        viewModel.fetchImages { [weak self] in
+        presenter.fetchImages { [weak self] in
             DispatchQueue.main.async {
                 self?.collectionView.reloadData()
                 self?.prefetchImagesForVisibleCells()
@@ -66,7 +66,7 @@ class MainViewController: UIViewController {
         alertController.view.addSubview(pickerView)
         
         let action = UIAlertAction(title: "Done", style: .default) { [unowned self] _ in
-            self.viewModel.filterImages(by: self.pickerComponents[self.pickerView.selectedRow(inComponent: 0)])
+            self.presenter.filterImages(by: self.pickerComponents[self.pickerView.selectedRow(inComponent: 0)])
             self.collectionView.reloadData()
         }
         alertController.addAction(action)
@@ -74,30 +74,22 @@ class MainViewController: UIViewController {
     }
     
     @objc func favouriteButtonTapped() {
-        let favouriteVC = FavouriteViewController()
-        favouriteVC.favourite = viewModel.favourite
+        let favouritePresenter = FavouritePresenter(favourites: presenter.favourites)
+        let favouriteVC = FavouriteViewController(presenter: favouritePresenter)
+        favouriteVC.delegate = self
         navigationController?.pushViewController(favouriteVC, animated: true)
     }
 
     //MARK: - optimized loading
     private func prefetchImagesForVisibleCells() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        let urls = visibleIndexPaths.compactMap { viewModel.images[$0.item].url }
+        let urls = visibleIndexPaths.compactMap { presenter.images[$0.item].url }
         let prefetcher = ImagePrefetcher(urls: urls)
         prefetcher.start()
     }
     
-//    @objc func handleFavoriteTap(_ sender: UIButton) {
-//        let tappedImage = viewModel.images[sender.tag]
-//        if sender.isSelected {
-//            viewModel.favoriteImages.append(tappedImage)
-//        } else {
-//            viewModel.favoriteImages.removeAll(where: { $0.id == tappedImage.id })
-//        }
-//    }
-    
-    init(viewModel: MainViewModel) {
-        self.viewModel = viewModel
+    init(presenter: MainPresenter) {
+        self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -109,18 +101,20 @@ class MainViewController: UIViewController {
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.images.count
+        return presenter.images.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImageViewCell
-
-        let image = viewModel.images[indexPath.item]
+        let image = presenter.images[indexPath.item]
         let url = image.url
         let size = CGSize(width: 70, height: 70)
         let processor = ResizingImageProcessor(referenceSize: size, mode: .aspectFill)
         
         cell.delegate = self
+        cell.indexPath = indexPath
+        cell.heartButton.isSelected = presenter.favourites.contains { $0.image.id == image.id }
         cell.imageView.kf.indicatorType = .activity
         cell.imageView.kf.setImage(
             with: url,
@@ -134,7 +128,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let imageModel = viewModel.images[indexPath.row]
+        let imageModel = presenter.images[indexPath.row]
         let imageUrl = imageModel.url
         
         KingfisherManager.shared.retrieveImage(with: imageUrl) { result in
@@ -173,12 +167,14 @@ extension MainViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
 extension MainViewController: ImageViewCellDelegate {
     func didFavoriteImage(at indexPath: IndexPath) {
-        let imageModel = viewModel.images[indexPath.item]
-        if let index = viewModel.favourite.firstIndex(where: { $0.id == imageModel.id }) {
-            viewModel.favourite.remove(at: index)
-        } else {
-            viewModel.favourite.append(imageModel)
-        }
+        presenter.toggleFavorite(forImageAt: indexPath.row)
+        collectionView.reloadItems(at: [indexPath])
     }
 }
 
+extension MainViewController: FavouriteControllerDelegate {
+    func didUpdateFavorites(updatedFavorites: [Favourite]) {
+        presenter.favourites = updatedFavorites
+        collectionView.reloadData()
+    }
+}
